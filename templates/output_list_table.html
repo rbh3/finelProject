@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+   <body>
+   
+      <table border = 1>
+			<tr>
+				<th> Sample Number </th>
+				<th> Predicted Type </th>
+				<th> Confidence </th>
+			</tr>
+         {% for key in result %}
+         
+            <tr>
+               <td> {{ key }} </td>
+               <td> {{ result[key] }} </td>
+			   <td> {{result2[key] }} </td>
+            </tr>
+            
+         {% endfor %}
+      </table>
+      
+   </body>
+</html>

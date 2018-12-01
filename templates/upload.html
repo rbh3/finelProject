@@ -1,0 +1,47 @@
+<html>
+   <body>
+	<script>
+	function expand(){
+		document.getElementById("demo").style.display = 'block';				
+	}
+	function collapse(){
+		document.getElementById("demo").style.display = 'none';
+	}
+	</script>
+	
+	
+      <form action = "http://localhost:5000/uploader" method = "POST" 
+         enctype = "multipart/form-data">
+		 <p>Upload a gene expression data file.</p>
+         <input type = "file" name = "file" /><br>
+		 <p>What platform was used to collect this data?</p>
+		 <input type = "radio" name="platform" value="microarray" checked/>Microarray<br>
+		 <input type = "radio" name="platform" value="bulk_rna" />Bulk RNA sequencing<br>
+		 <input type = "radio" name="platform" value="single_rna" />Single Cell RNA sequencing<br>
+		 On what row number does the expression data start? <input type = "text" name="start_row"/><br>
+		 On what row number does the expression data end? <input type = "text" name="end_row"/><br>
+		 Are the genes labeled by gene symbol? 
+		<input type="radio" name="convert" onclick="expand()" value="no" />No 
+		<input type="radio" name="convert" onclick="collapse()" value="yes" checked/>Yes <br>
+		<!--<button type="button" onclick="expand()">No</button>
+		<button type="button" onclick="collapse()">Yes</button> -->
+		<div id="demo" style="display:none;">
+			<p>Upload the file for converting gene ID to gene symbol:</p>
+			<input type = "file" name = "conversion_file" /><br>
+			On what row number does the conversion data start? <input type = "text" name="conv_start_row"/><br>
+			On what row number does the conversion data end? <input type = "text" name="conv_end_row"/><br>
+			Which column is gene ID? <input type = "text" name="id_col"/><br>
+			Which column is gene symbol? <input type = "text" name="symbol_col"/><br>
+		 </div>
+		 <br>
+         <input type = "submit"/>
+		 
+      </form>
+	  
+	
+
+
+	
+      
+   </body>
+</html>
