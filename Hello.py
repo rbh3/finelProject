@@ -377,5 +377,5 @@ def test():
             confidence_dic[i] = confidence[i]
         print(correct/len(predicted))
 
-test()
+test()#check
 
