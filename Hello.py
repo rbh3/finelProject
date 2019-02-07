@@ -245,7 +245,7 @@ def test():
         filename = 'X_unscaled_combo'
         included_affy_file = "Testing/indices_of_"+str(1421)+"_included_features_"+filename   
         '''
-        
+
         if True: #request.form['platform']=="single_rna":
             print("Running correlation prediction using Microarray data")
             if False: #request.form['convert']=='no': #not labeled by gene symbol, so need to convert using second file
@@ -362,7 +362,7 @@ def test():
             predicted,confidence = cs.KNN_sort_filtered(X_ref,train_labels,X_query_dist_matched,included_affy_file,train_genes_file,k=5,platform="affy")
             
              
-        
+
         #d,n = X.shape
         print(predicted)
         output = ""
@@ -377,5 +377,5 @@ def test():
             confidence_dic[i] = confidence[i]
         print(correct/len(predicted))
 
-test()#check
+test()
 

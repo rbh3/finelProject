@@ -392,7 +392,7 @@ def match_dist(X_ref,X_query): #, one-to-one scaling is ok
     '''
     
     print("X_ref shape: ",X_ref.shape,"query shape: ", X_query.shape)
-    X_ref_mean = np.median(X_ref,axis=1) 
+    X_ref_mean = np.median(X_ref,axis=1)
     X_ref_sort = X_ref_mean.tolist()
     X_ref_sort.sort() #Representative distribution of the reference set
     
