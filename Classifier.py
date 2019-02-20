@@ -109,9 +109,9 @@ def gene_code_map(filename, data_row, data_end, symbol_col, id_col):
 
         line_split = line.split(sep="\t")
         if line_split[id_col].lower() not in id_to_symbol_map:
-            id_to_symbol_map[str(line_split[id_col]).lower()] = str(line_split[symbol_col]).lower()
+            id_to_symbol_map[str(line_split[id_col]).lower()] = str(line_split[symbol_col]).lower().replace('\n', '')
         if line_split[symbol_col].lower() not in symbol_to_id_map:
-            symbol_to_id_map[line_split[symbol_col].lower()] = line_split[id_col].lower()
+            symbol_to_id_map[line_split[symbol_col].lower().replace('\n', '')] = line_split[id_col].lower()
 
         line = f.readline()
     

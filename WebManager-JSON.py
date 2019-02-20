@@ -90,8 +90,7 @@ def uploaded_file():
             output_dic[i]=predicted[i]
             confidence_dic[i] = confidence[i]
 
-        # return render_template('output_list_table.html',result=output_dic,result2=confidence_dic)
-        return jsonify({'output': output_dic, 'confidence': confidence_dic})
+        return jsonify({'output': output_dic, 'confidence': confidence_dic, 'CellsNo': len(output_dic)})
 
 
 if __name__ == '__main__':
