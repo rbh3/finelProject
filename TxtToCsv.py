@@ -10,4 +10,4 @@ def txt_to_csv(filename,start_row):
         count+=1
     csv.close()
 
-txt_to_csv("GSE74923.txt")
+# txt_to_csv("GSE74923.txt")
