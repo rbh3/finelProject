@@ -42,7 +42,7 @@ def get_series_data(filename,data_line,data_end,offset=1):
     """
     data_line = int(data_line)
     data_end = int(data_end)
-    bad_columns = [] #columns that we throw out due to missing label/data
+    bad_columns = [0] #columns that we throw out due to missing label/data
 
     f = open(filename, 'r')
     #read down until data_line
@@ -54,7 +54,7 @@ def get_series_data(filename,data_line,data_end,offset=1):
     gene_ids = []
 
     count = data_line
-    while(line!="!series_matrix_table_end" and count<data_end):
+    while(line !="!series_matrix_table_end" and count<data_end) or line != '':
         count+= 1
         if count%5000 == 0:
             print("reading line: ",count)
@@ -102,7 +102,7 @@ def gene_code_map(filename, data_row, data_end, symbol_col, id_col):
         #print(line)
 
     count = 0
-    while(line!="!platform_table_end" and line != "" and count<data_end):
+    while(line !="!platform_table_end" and count<data_end) or line != "":
         count+= 1
         if count%5000 == 0:
             print("reading line: ",count)
