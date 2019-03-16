@@ -34,7 +34,7 @@ import pickle
 
 
 
-def get_series_data(filename,data_line,data_end,offset=1):
+def get_series_data(filename,data_line,data_end, isLabeld, offset=1):
     """
     This function opens a .txt file, reads until the type_line, uses those entries as labels (array y).
     Then it reads until data_line and creates an array of expression data (specifically log2(expression+1))
@@ -45,9 +45,12 @@ def get_series_data(filename,data_line,data_end,offset=1):
     bad_columns = [0] #columns that we throw out due to missing label/data
 
     f = open(filename, 'r')
+    labels = []
     #read down until data_line
     for _ in range(data_line):
         line = f.readline()
+        if isLabeld == 'true' and _ == 0:
+            labels = line.split('\t')
 
     #Set up X - the array of data
     X = []
@@ -83,7 +86,7 @@ def get_series_data(filename,data_line,data_end,offset=1):
         X = np.delete(X,i,1)
 
 
-    return X,gene_ids
+    return X,gene_ids,labels
 
 
 
@@ -306,13 +309,12 @@ def KNN_sort_filtered(X_train,y_train,X_test,included_affy_file,train_genes_file
         #pickle.dump(X_test, open("Testing/X_test_good_rows", "wb"))
         #pickle.dump(X_train, open("Testing/X_train_good_rows", "wb"))
 
-    type_map = {'ccd11b': 'cd4', 'b': 'b', 'cd19': 'b', 'sc': 'hsc', 'fi': 'stromal', 'frc': 'stromal', 'bec': 'stromal', 'lec': 'stromal',
-            'ep': 'stromal', 'st': 'stromal', 't': 't4', 'nkt': 'nkt', 'prob': 'b', 'preb': 'b', 'pret': 't4', 'mo': 'mo', 'b1b': 'b1ab',
-            'b1a': 'b1ab', 'dc': 'dc', 'gn': 'gn', 'nk': 'nk', 'mf': 'mf', 'tgd': 'tgd', 'cd4': 't4', 'mlp': 'other', 'cd8': 't8',
-            't8': 't8', 'b1ab': 'b1ab', 'treg': 'treg', 't4': 't4', 'dn': 'stromal', 'eo': 'eo', 'ilc1': 'ilc', 'ilc2': 'ilc',
-            'ilc3': 'ilc', 'ba': 'other', 'mechi': 'ep', 'mc': 'mc', 'ccd11b-': 't4', 'b-cells':'b','nucleated':'other','lt-hsc':'hsc',
-            'monocytes':'mo','cd4+':'t4','cd8+':'t8','granulocytes':'gn', 'iap':'other', 'mmp4':'other','mmp3':'other', 'b1b':'other',
-            'sthsc':'hsc', 'lthsc':'hsc','bec':'other', 'frc':'other', 'l1210':'other', 'ilc':'ilc', "hsc":'hsc', 'macrophage':'mf'}
+    type_map = {'ccd11b': 'other', 'b': 'b', 'cd19': 'b', 'sc': 'other', 'fi': 'other', 'frc': 'other', 'bec': 'other', 'lec': 'other',
+                'ep': 'other', 'st': 'other', 't': 't4', 'nkt': 'nkt', 'prob': 'b', 'preb': 'b', 'pret': 't4', 'mo': 'other', 'b1b': 'b1ab',
+                'b1a': 'b1ab', 'dc': 'dc', 'gn': 'gn', 'nk': 'nk', 'mf': 'mf', 'tgd': 'tgd', 'cd4': 't4', 'mlp': 'other', 'cd8': 't8',
+                't8': 't8', 'b1ab': 'b1ab', 'treg': 'treg', 't4': 't4', 'dn': 'other', 'eo': 'other', 'ilc1': 'other', 'ilc2': 'other',
+                'ilc3': 'other', 'ba': 'other', 'mechi': 'other', 'mc': 'other', 'ccd11b-': 'other','b-cells':'b','nucleated':'other','lt-hsc':'other',
+                'monocytes':'other','cd4+':'t4','cd8+':'t8','granulocytes':'gn','macrophage':'mf','hsc':'other','ilc':'other'}
 
     d,n = X_test.shape
     d,n_train = X_train.shape
@@ -416,7 +418,7 @@ def match_dist(X_ref,X_query): #, one-to-one scaling is ok
 
 
 
-def covariance_predict(X,y,X_test,threshold=.25,types=20):   
+def covariance_predict(X,y,X_test,threshold=.25,types=11):
     d,n = X.shape
     
     if types==20:

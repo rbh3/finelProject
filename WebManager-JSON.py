@@ -21,10 +21,11 @@ def uploaded_file():
         f = request.files['file']
         start_row = int(request.form['start_row'])
         end_row = int(request.form['end_row'])
+        isLabeled = request.form['isLabeled']
  
         f.save("data/"+f.filename)
 
-        X,gene_ids = cs.get_series_data("data/"+f.filename,start_row,end_row)
+        X,gene_ids,labels = cs.get_series_data("data/"+f.filename, start_row, end_row, isLabeled)
 
 
         if request.form['platform']=="single_rna":
@@ -90,7 +91,18 @@ def uploaded_file():
             output_dic[i]=predicted[i]
             confidence_dic[i] = confidence[i]
 
-        return jsonify({'output': output_dic, 'confidence': confidence_dic, 'CellsNo': len(output_dic)})
+        precision = 0
+        if len(labels) > 0:
+            del labels[0]
+            print('real labels: ', labels)
+            for i in range(len(labels)):
+                if labels[i] == output_dic[i]:
+                    precision += 1
+            precision = precision/len(labels)
+            print('labels got: ', output_dic)
+            print('Precision: ', precision*100, '%')
+
+        return jsonify({'output': output_dic, 'confidence': confidence_dic, 'CellsNo': len(output_dic), 'Precision': precision})
 
 
 if __name__ == '__main__':
