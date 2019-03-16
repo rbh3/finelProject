@@ -57,7 +57,7 @@ def get_series_data(filename,data_line,data_end, isLabeld, offset=1):
     gene_ids = []
 
     count = data_line
-    while(line !="!series_matrix_table_end" and count<data_end) or line != '':
+    while(data_end != 0 and count < data_end) or (data_end == 0 and ("!series_matrix_table_end" not in line and line != '')):
         count+= 1
         if count%5000 == 0:
             print("reading line: ",count)
