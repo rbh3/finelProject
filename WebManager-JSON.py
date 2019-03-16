@@ -96,7 +96,7 @@ def uploaded_file():
             del labels[0]
             print('real labels: ', labels)
             for i in range(len(labels)):
-                if labels[i] == output_dic[i]:
+                if labels[i].lower().rstrip() == output_dic[i]:
                     precision += 1
             precision = precision/len(labels)
             print('labels got: ', output_dic)
