@@ -1,1 +1,2 @@
 TestingRD filter=lfs diff=lfs merge=lfs -text
+TestingRD/** filter=lfs diff=lfs merge=lfs -text
