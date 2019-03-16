@@ -28,7 +28,7 @@ def uploaded_file():
         X,gene_ids,labels = cs.get_series_data("data/"+f.filename, start_row, end_row, isLabeled)
 
 
-        if request.form['platform']=="single_rna":
+        if request.form['platform']=="single rna":
             #Code to run magic and then use distribution matched KNN
             
             print("Running KNN classifier using single cell RNA data")

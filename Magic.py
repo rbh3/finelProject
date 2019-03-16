@@ -14,7 +14,7 @@ import csv
 def txt_to_csv(filename,start_row):
     
     txt = open(filename,'r')
-    csv = open(filename[:-4]+'.csv','w')
+    csv = open(filename[:-4]+'.csv','w',encoding='utf-8')
     count = 0
     for line in txt:
         count+=1
@@ -29,7 +29,7 @@ def magic_process(filename,start_row):
     txt_to_csv(filename,start_row)
     filename = filename[:-4]+".csv"
 
-    X= magic.io.load_csv(filename, cell_axis='column')
+    X= magic.io.load_csv(filename, cell_axis='column', encoding='utf-8')
 
     #libsize = X.sum(axis=1)
     #X = X.loc[libsize>1000]
