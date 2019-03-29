@@ -1,4 +1,6 @@
 import pdb
+from logging import exception
+
 import numpy as np
 import itertools
 import math
@@ -8,6 +10,7 @@ import matplotlib
 #import keras
 
 #np.random.seed(0)
+from flask import jsonify
 from keras.models import Sequential
 from keras.models import load_model
 from keras.optimizers import SGD, Adam
@@ -29,9 +32,7 @@ from sklearn.decomposition import PCA as sklearnPCA
 # Utilities
 import pickle
 
-
-
-
+from WebManager import app
 
 
 def get_series_data(filename,data_line,data_end, isLabeld, offset=1):
@@ -78,6 +79,9 @@ def get_series_data(filename,data_line,data_end, isLabeld, offset=1):
     
     #Turn into an np.array 
     X = np.array(X)
+
+    if(len(X) == 0):
+        return 'Empty'
 
     #Remove the columns with missing data/labels
     bad_columns = list(set(bad_columns))
@@ -177,6 +181,8 @@ def reduce_to_good_rows(train_data,test_data,included_affy_file,train_genes,gene
     '''
     X_train = train_data.astype(np.float)
     X_test = test_data.astype(np.float)
+    if(X_test.shape[1] == 0):
+        return 'NO TEST GENES'
     print(X_test)
     print(X_test.shape)
     print("train genes: ",len(train_genes))
@@ -394,6 +400,8 @@ def match_dist(X_ref,X_query): #, one-to-one scaling is ok
     '''
     
     print("X_ref shape: ",X_ref.shape,"query shape: ", X_query.shape)
+    if len(X_ref) == 0 or len(X_query) == 0:
+        return 'File not on correct format'
     X_ref_mean = np.median(X_ref,axis=1)
     X_ref_sort = X_ref_mean.tolist()
     X_ref_sort.sort() #Representative distribution of the reference set
