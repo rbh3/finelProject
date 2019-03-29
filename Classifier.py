@@ -35,7 +35,7 @@ import pickle
 from WebManager import app
 
 
-def get_series_data(filename,data_line,data_end, isLabeld, offset=1):
+def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
     """
     This function opens a .txt file, reads until the type_line, uses those entries as labels (array y).
     Then it reads until data_line and creates an array of expression data (specifically log2(expression+1))
@@ -47,12 +47,17 @@ def get_series_data(filename,data_line,data_end, isLabeld, offset=1):
 
     f = open(filename, 'r')
     labels = []
+    titles = []
     #read down until data_line
     for _ in range(data_line):
         line = f.readline()
         if isLabeld == 'true' and _ == 0:
             labels = line.split('\t')
+        if isTitled == 'true' and _ == 1:
+            titles = line.split('\t')
 
+    if(len(titles)>0):
+        del titles[0]
     #Set up X - the array of data
     X = []
     gene_ids = []
@@ -89,8 +94,7 @@ def get_series_data(filename,data_line,data_end, isLabeld, offset=1):
     for i in bad_columns:
         X = np.delete(X,i,1)
 
-
-    return X,gene_ids,labels
+    return X, gene_ids, labels, titles
 
 
 

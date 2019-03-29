@@ -27,11 +27,12 @@ def uploaded_file():
         start_row = int(request.form['start_row'])
         end_row = int(request.form['end_row'])
         isLabeled = request.form['isLabeled']
+        isTitled = request.form['isTitled']
 
         f.save("data/" + f.filename)
 
         try:
-            X, gene_ids, labels = cs.get_series_data("data/" + f.filename, start_row, end_row, isLabeled)
+            X, gene_ids, labels, titles = cs.get_series_data("data/" + f.filename, start_row, end_row, isLabeled, isTitled)
         except Exception:
             return jsonify({'errMsg': 'The input file is empty'}), 416
 
@@ -117,6 +118,7 @@ def uploaded_file():
             del labels[0]
             print('real labels: ', labels)
             for i in range(len(labels)):
+                print(labels[i].lower().rstrip())
                 if labels[i].lower().rstrip() == output_dic[i]:
                     precision += 1
             precision = precision / len(labels)
@@ -124,7 +126,8 @@ def uploaded_file():
             print('Precision: ', precision * 100, '%')
 
         return jsonify(
-            {'output': output_dic, 'confidence': confidence_dic, 'CellsNo': len(output_dic), 'Precision': precision})
+            {'output': output_dic, 'confidence': confidence_dic, 'CellsNo': len(output_dic), 'actual': labels,
+             'Titles': titles, 'Precision': precision})
 
 
 if __name__ == '__main__':
