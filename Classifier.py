@@ -53,8 +53,12 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
         line = f.readline()
         if isLabeld == 'true' and _ == 0:
             labels = line.split('\t')
+            labels = [element.lower().rstrip() for element in labels] ; labels
+            print(labels)
         if isTitled == 'true' and _ == 1:
             titles = line.split('\t')
+            titles = [element.lower().rstrip() for element in titles] ; titles
+            print(titles)
 
     if(len(titles)>0):
         del titles[0]
