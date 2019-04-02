@@ -104,7 +104,7 @@ def uploaded_file():
                 return jsonify({'errMsg': 'The input file does not contains cells'}), 416
             X_query_dist_matched = cs.match_dist(X_ref,X_query)
             if X_query_dist_matched == 'File not on correct format':
-                return jsonify({'errMsg': 'File not on correct format'}), 416
+                return jsonify({'errMsg': 'Mapping file is not on correct format'}), 416
             predicted,confidence = cs.KNN_sort_filtered(X_ref,train_labels,X_query_dist_matched,included_affy_file,train_genes_file,k=5,platform="affy")
         
         output_dic = {}
