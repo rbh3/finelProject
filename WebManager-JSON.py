@@ -106,7 +106,13 @@ def uploaded_file():
             if X_query_dist_matched == 'File not on correct format':
                 return jsonify({'errMsg': 'Mapping file is not on correct format'}), 416
             predicted,confidence = cs.KNN_sort_filtered(X_ref,train_labels,X_query_dist_matched,included_affy_file,train_genes_file,k=5,platform="affy")
-        
+            ######SHOULD WE USE SVM?!?!
+            # predicted,confidence = cs.ravidSVM(X_ref,train_labels,X_query_dist_matched,included_affy_file,train_genes_file,k=5,platform="affy")
+            # predicted1,confidence1, ct = cs.fit_model(X_ref,train_labels,save_file=f.filename)
+            # x_test=X_query_dist_matched.transpose()
+            # predddd = confidence1.predict_classes(x_test);
+            # print(predddd)
+
         output_dic = {}
         confidence_dic = {}
         for i in range(len(predicted)):
@@ -123,6 +129,7 @@ def uploaded_file():
             precision = precision / len(labels)
             print('labels got: ', output_dic)
             print('Precision: ', precision * 100, '%')
+
         return jsonify(
             {'output': output_dic, 'confidence': confidence_dic, 'CellsNo': len(output_dic), 'actual': labels,
              'Titles': titles, 'Precision': precision})

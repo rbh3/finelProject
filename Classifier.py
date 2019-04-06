@@ -28,6 +28,9 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.decomposition import PCA as sklearnPCA
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.neighbors import KNeighborsClassifier
 
 # Utilities
 import pickle
@@ -242,8 +245,89 @@ def reduce_to_good_rows(train_data,test_data,included_affy_file,train_genes,gene
     input_X_good_rows = np.array(input_X_good_rows) #query data for rows that were successfully converted
 
     return X_affy_good_rows, input_X_good_rows
-        
-        
+
+def ravidSVM(X_train, y_train, X_test, included_affy_file, train_genes_file, k=10, platform="affy",
+                          genes_list=None):
+    predicted_types = []
+    confidences = []
+
+    # If platform not affy we need to convert as much as possible
+    if platform != "affy":
+        Affy_genes = pickle.load(open(train_genes_file, "rb"))
+
+        included_Affy_indices = pickle.load(open(included_affy_file, "rb"))
+        print("Top two included genes in good rows: ", Affy_genes[included_Affy_indices[0]],
+              Affy_genes[included_Affy_indices[1]])
+
+        if platform == "xloc":
+            ID_genes = pickle.load(open("Testing/gene_ids_genes_fpkm", "rb"))
+            ID_genes = np.array(ID_genes)
+            gene_to_Affy = pickle.load(open("Testing/Xloc_to_Affy", "rb"))
+            Affy_to_gene = {}
+            # set up the conversions in both directions
+            for entry in list(gene_to_Affy.keys()):
+                Affy_to_gene[gene_to_Affy[entry]] = entry
+        else:
+            gene_to_Affy = platform
+            ID_genes = genes_list
+            ID_genes = np.array(ID_genes)
+            Affy_to_gene = {}
+            # set up the conversions in both directions
+            for entry in list(gene_to_Affy.keys()):
+                Affy_to_gene[gene_to_Affy[entry]] = entry
+
+        X_affy_good_rows = []  # For distances, we only want to use features that were successfully converted
+        input_X_good_rows = []  # newly formatted query data including only mutual genes in the same order as the reference data
+        count = 0
+        genes_converted = 0
+
+        ID_genes_list = ID_genes.tolist()
+        ID_genes_set = set(ID_genes_list)
+        X_test_list = X_test.tolist()
+        X_test_mean = np.mean(X_test, axis=0)
+
+        # for each gene we want to include
+        for i in included_Affy_indices:
+            gene = Affy_genes[i]
+
+            if gene in Affy_to_gene and Affy_to_gene[gene] in ID_genes_set:
+                # convert if possible
+                ID_gene = Affy_to_gene[gene]
+                index = ID_genes_list.index(ID_gene)
+
+                genes_converted += 1
+                input_X_good_rows.append(X_test_list[index])
+                X_affy_good_rows.append(X_train[i, :].tolist())
+
+            count += 1
+
+        print("genes converted: ", genes_converted, " out of ", count)
+
+        X_test = np.array(X_affy_good_rows)  # reference set rows that were successfully converted
+        X_train = np.array(input_X_good_rows)  # query set rows that were successfully converted
+
+    type_map = {'ccd11b': 'other', 'b': 'b', 'cd19': 'b', 'sc': 'other', 'fi': 'other', 'frc': 'other', 'bec': 'other',
+                'lec': 'other',
+                'ep': 'other', 'st': 'other', 't': 't4', 'nkt': 'nkt', 'prob': 'b', 'preb': 'b', 'pret': 't4',
+                'mo': 'other', 'b1b': 'b1ab',
+                'b1a': 'b1ab', 'dc': 'dc', 'gn': 'gn', 'nk': 'nk', 'mf': 'mf', 'tgd': 'tgd', 'cd4': 't4',
+                'mlp': 'other', 'cd8': 't8',
+                't8': 't8', 'b1ab': 'b1ab', 'treg': 'treg', 't4': 't4', 'dn': 'other', 'eo': 'other', 'ilc1': 'other',
+                'ilc2': 'other',
+                'ilc3': 'other', 'ba': 'other', 'mechi': 'other', 'mc': 'other', 'ccd11b-': 'other', 'b-cells': 'b',
+                'nucleated': 'other', 'lt-hsc': 'other',
+                'monocytes': 'other', 'cd4+': 't4', 'cd8+': 't8', 'granulocytes': 'gn', 'macrophage': 'mf',
+                'hsc': 'other', 'ilc': 'other'}
+
+    svm = SGDClassifier(loss="modified_huber")
+    svm.fit(X_train.transpose(), y_train)
+    pred = svm.predict(X_test.transpose())
+    pred_translated=[]
+    for item in pred:
+        pred_translated.append(type_map[item])
+    print(pred_translated)
+    print(svm.predict_proba(pred.transpose()))
+
 
 def KNN_sort_filtered(X_train,y_train,X_test,included_affy_file,train_genes_file,k=10,platform="affy",genes_list=None):
     '''
@@ -375,8 +459,6 @@ def column_scale(X,scale="mean"):
             pass
     return X
 
-
-
 def shuffle(X_file,y_file,train_size):
     '''
     FOR TESTING CLASSIFIER
@@ -395,10 +477,6 @@ def shuffle(X_file,y_file,train_size):
     X_shuffle = data[0:d,:]
     y_shuffle = data[d,:]
     return X_shuffle[:,0:train_size],y_shuffle[0:train_size],X_shuffle[:,train_size:],y_shuffle[train_size:]
-
-
-
-
 
 def match_dist(X_ref,X_query): #, one-to-one scaling is ok
     '''
@@ -431,8 +509,6 @@ def match_dist(X_ref,X_query): #, one-to-one scaling is ok
     X_out = np.array(X_out).T
     
     return X_out
-
-
 
 def covariance_predict(X,y,X_test,threshold=.25,types=11):
     d,n = X.shape
@@ -498,7 +574,6 @@ def covariance_predict(X,y,X_test,threshold=.25,types=11):
         confidences.append(cov)
         
     return predictions,confidences
-
 
 """
 Below is code used for creating the neural network classifier, but is not used in the webapp
@@ -582,14 +657,10 @@ def keras_trials(trials, X_train,Y_train,X_test,Y_test,layers,split=.1):
     #print("Average test accuracy: ",test_acc/trials)
     return model,test_acc/trials
 
-
-
-
 def fit_model(X,y,separate="11",filename="",trials=5,save_file=None):
     
     classes = []
     gene_ids = []
-    
     num_classes = 10 #len(classes)
     print("X shape: ",X.shape)
     print("Y shape: ",y.shape)
@@ -622,9 +693,7 @@ def fit_model(X,y,separate="11",filename="",trials=5,save_file=None):
             cell_labels.append(cell_type_to_int['Other'])
     y = np.array(cell_labels)
     pickle.dump(int_to_cell_type, open("Testing/int_to_cell_type_for_"+ save_file +"_" + str(num_classes) + "_types", "wb"))
-           
-    
-    
+
     test_acc=0
     for i in range(trials):
 
@@ -660,8 +729,7 @@ def fit_model(X,y,separate="11",filename="",trials=5,save_file=None):
         else:
             model.save("Testing/" + filename[5:-4] + "_" + str(num_classes) + "_types_model.h5")
     print("average test accuracy: ",test_acc/trials)
-    return test_acc/trials, model
-
+    return test_acc/trials, model, cell_type_to_int
 
 #Used for visualization, not for prediction
 def plot_two_genes(X,y,X2):
