@@ -1,5 +1,5 @@
 import pdb
-
+import logging
 import werkzeug
 from flask import Flask, redirect, url_for, request, render_template, Response, json, jsonify
 from flask_cors import CORS, cross_origin
@@ -136,5 +136,8 @@ def uploaded_file():
 
 
 if __name__ == '__main__':
+    handler = logging.FileHandler('/var/log/wsgi/wsgi.log')
+    handler.setLevel(logging.ERROR)
     app.debug = True  # allows for changes to be enacted without rerunning server
+    app.logger.addHandler(handler)
     app.run()
