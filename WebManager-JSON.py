@@ -140,4 +140,4 @@ if __name__ == '__main__':
     handler.setLevel(logging.ERROR)
     app.debug = True  # allows for changes to be enacted without rerunning server
     app.logger.addHandler(handler)
-    app.run()
+    app.run(host="0.0.0.0")
