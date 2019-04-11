@@ -105,9 +105,10 @@ def uploaded_file():
             X_query_dist_matched = cs.match_dist(X_ref,X_query)
             if X_query_dist_matched == 'File not on correct format':
                 return jsonify({'errMsg': 'Mapping file is not on correct format'}), 416
-            predicted,confidence = cs.KNN_sort_filtered(X_ref,train_labels,X_query_dist_matched,included_affy_file,train_genes_file,k=5,platform="affy")
+            #predicted,confidence = cs.KNN_sort_filtered(X_ref,train_labels,X_query_dist_matched,included_affy_file,train_genes_file,k=5,platform="affy")
             ######SHOULD WE USE SVM?!?!
-            # predicted,confidence = cs.ravidSVM(X_ref,train_labels,X_query_dist_matched,included_affy_file,train_genes_file,k=5,platform="affy")
+            #predicted,confidence = cs.ravidSVM(X_ref,train_labels,X_query_dist_matched,included_affy_file,train_genes_file,k=5,platform="affy")
+            predicted, confidence = cs.dorRandomForst(X_ref, train_labels, X_query_dist_matched, included_affy_file, train_genes_file, k=5, platform="affy")
             # predicted1,confidence1, ct = cs.fit_model(X_ref,train_labels,save_file=f.filename)
             # x_test=X_query_dist_matched.transpose()
             # predddd = confidence1.predict_classes(x_test);

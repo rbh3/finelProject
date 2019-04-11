@@ -29,6 +29,9 @@ from sklearn.feature_selection import chi2
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.decomposition import PCA as sklearnPCA
 from sklearn.linear_model import SGDClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -246,6 +249,9 @@ def reduce_to_good_rows(train_data,test_data,included_affy_file,train_genes,gene
 
     return X_affy_good_rows, input_X_good_rows
 
+# Hack notes: predict_proba works - it gives a vector of all the confidences according to each
+#
+
 def ravidSVM(X_train, y_train, X_test, included_affy_file, train_genes_file, k=10, platform="affy",
                           genes_list=None):
     predicted_types = []
@@ -328,6 +334,97 @@ def ravidSVM(X_train, y_train, X_test, included_affy_file, train_genes_file, k=1
     print(pred_translated)
     print(svm.predict_proba(pred.transpose()))
 
+def dorRandomForst(X_train, y_train, X_test, included_affy_file, train_genes_file, k=10, platform="affy",
+                          genes_list=None):
+    predicted_types = []
+    confidences = []
+
+    # If platform not affy we need to convert as much as possible
+    if platform != "affy":
+        Affy_genes = pickle.load(open(train_genes_file, "rb"))
+
+        included_Affy_indices = pickle.load(open(included_affy_file, "rb"))
+        print("Top two included genes in good rows: ", Affy_genes[included_Affy_indices[0]],
+              Affy_genes[included_Affy_indices[1]])
+
+        if platform == "xloc":
+            ID_genes = pickle.load(open("Testing/gene_ids_genes_fpkm", "rb"))
+            ID_genes = np.array(ID_genes)
+            gene_to_Affy = pickle.load(open("Testing/Xloc_to_Affy", "rb"))
+            Affy_to_gene = {}
+            # set up the conversions in both directions
+            for entry in list(gene_to_Affy.keys()):
+                Affy_to_gene[gene_to_Affy[entry]] = entry
+        else:
+            gene_to_Affy = platform
+            ID_genes = genes_list
+            ID_genes = np.array(ID_genes)
+            Affy_to_gene = {}
+            # set up the conversions in both directions
+            for entry in list(gene_to_Affy.keys()):
+                Affy_to_gene[gene_to_Affy[entry]] = entry
+
+        X_affy_good_rows = []  # For distances, we only want to use features that were successfully converted
+        input_X_good_rows = []  # newly formatted query data including only mutual genes in the same order as the reference data
+        count = 0
+        genes_converted = 0
+
+        ID_genes_list = ID_genes.tolist()
+        ID_genes_set = set(ID_genes_list)
+        X_test_list = X_test.tolist()
+        X_test_mean = np.mean(X_test, axis=0)
+
+        # for each gene we want to include
+        for i in included_Affy_indices:
+            gene = Affy_genes[i]
+
+            if gene in Affy_to_gene and Affy_to_gene[gene] in ID_genes_set:
+                # convert if possible
+                ID_gene = Affy_to_gene[gene]
+                index = ID_genes_list.index(ID_gene)
+
+                genes_converted += 1
+                input_X_good_rows.append(X_test_list[index])
+                X_affy_good_rows.append(X_train[i, :].tolist())
+
+            count += 1
+
+        print("genes converted: ", genes_converted, " out of ", count)
+
+        X_test = np.array(X_affy_good_rows)  # reference set rows that were successfully converted
+        X_train = np.array(input_X_good_rows)  # query set rows that were successfully converted
+
+    type_map = {'ccd11b': 'other', 'b': 'b', 'cd19': 'b', 'sc': 'other', 'fi': 'other', 'frc': 'other', 'bec': 'other',
+                'lec': 'other',
+                'ep': 'other', 'st': 'other', 't': 't4', 'nkt': 'nkt', 'prob': 'b', 'preb': 'b', 'pret': 't4',
+                'mo': 'other', 'b1b': 'b1ab',
+                'b1a': 'b1ab', 'dc': 'dc', 'gn': 'gn', 'nk': 'nk', 'mf': 'mf', 'tgd': 'tgd', 'cd4': 't4',
+                'mlp': 'other', 'cd8': 't8',
+                't8': 't8', 'b1ab': 'b1ab', 'treg': 'treg', 't4': 't4', 'dn': 'other', 'eo': 'other', 'ilc1': 'other',
+                'ilc2': 'other',
+                'ilc3': 'other', 'ba': 'other', 'mechi': 'other', 'mc': 'other', 'ccd11b-': 'other', 'b-cells': 'b',
+                'nucleated': 'other', 'lt-hsc': 'other',
+                'monocytes': 'other', 'cd4+': 't4', 'cd8+': 't8', 'granulocytes': 'gn', 'macrophage': 'mf',
+                'hsc': 'other', 'ilc': 'other'}
+
+    #svm = SGDClassifier(loss="modified_huber")
+    #svm.fit(X_train.transpose(), y_train)
+    #pred = svm.predict(X_test.transpose())
+    #pred_translated=[]
+    #for item in pred:
+    #    pred_translated.append(type_map[item])
+    #print(pred_translated)
+    #print(svm.predict_proba(pred.transpose()))
+
+    RanFor = RandomForestClassifier(n_estimators=100)
+    RanFor.fit(X_train.transpose(), y_train)
+    pred = RanFor.predict(X_test.transpose())
+    pred_translated = []
+    for item in pred:
+        pred_translated.append(type_map[item])
+    print(pred_translated)
+    conf = RanFor.predict_proba(X_test.transpose())
+    x = 2
 
 def KNN_sort_filtered(X_train,y_train,X_test,included_affy_file,train_genes_file,k=10,platform="affy",genes_list=None):
     '''
