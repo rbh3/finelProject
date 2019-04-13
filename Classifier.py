@@ -84,6 +84,8 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
     for i in bad_columns:
         X = np.delete(X,i,1)
 
+    f.close()
+
     return X, gene_ids, labels, titles
 
 
@@ -110,14 +112,15 @@ def gene_code_map(filename, data_row, data_end, symbol_col, id_col):
 
         line_split = line.split(sep="\t")
         try:
-             if line_split[id_col].lower() not in id_to_symbol_map:
-                id_to_symbol_map[str(line_split[id_col]).lower()] = str(line_split[symbol_col]).lower().replace('\n', '')
-             if line_split[symbol_col].lower() not in symbol_to_id_map:
-                symbol_to_id_map[line_split[symbol_col].lower().replace('\n', '')] = line_split[id_col].lower()
+             if line_split[id_col].lower().strip('\n') not in id_to_symbol_map:
+                id_to_symbol_map[str(line_split[id_col]).lower().strip('\n')] = str(line_split[symbol_col]).lower().strip('\n')
+             if line_split[symbol_col].lower().strip('\n') not in symbol_to_id_map:
+                symbol_to_id_map[line_split[symbol_col].lower().strip('\n')] = line_split[id_col].lower().strip('\n')
         except:
             raise SyntaxError()
         line = f.readline()
-    
+
+    f.close()
     return id_to_symbol_map
 
 def gene_symbol_to_affy(gene_list):
