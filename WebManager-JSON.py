@@ -1,13 +1,12 @@
-import pdb
 import logging
-import werkzeug
-from flask import Flask, redirect, url_for, request, render_template, Response, json, jsonify
-from flask_cors import CORS, cross_origin
+import pickle
+
+import numpy as np
+from flask import Flask, request, render_template, jsonify
+from flask_cors import CORS
+
 import Classifier as cs
 import Magic
-import numpy as np
-import pandas as pd
-import pickle
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
@@ -28,6 +27,7 @@ def uploaded_file():
         end_row = int(request.form['end_row'])
         isLabeled = request.form['isLabeled']
         isTitled = request.form['isTitled']
+        algo = request.form['clfMethod']
 
         f.save("data/" + f.filename)
 
@@ -39,7 +39,7 @@ def uploaded_file():
         if request.form['platform'] == "single rna":
             # Code to run magic and then use distribution matched KNN
 
-            print("Running KNN classifier using single cell RNA data")
+            print("Running classifier using single cell RNA data")
             if request.form['convert'] == 'no':  # not labeled by gene symbol, so need to convert using second file
                 g = request.files['conversion_file']
                 g.save("data/" + g.filename)
@@ -56,6 +56,7 @@ def uploaded_file():
 
             train_data = pickle.load(open('Testing/X_unscaled_combo', "rb")).astype(np.float)
             train_labels = pickle.load(open('Testing/y_combo', "rb"))
+            train_labels = [element.lower().rstrip() for element in train_labels] ; train_labels
             included_genes_file = "Testing/indices_of_" + str(1421) + "_included_features_X_unscaled_combo"
             train_genes = pickle.load(open("Testing/gene_ids_GSE15907_series_matrix", "rb"))
             id_to_affy = cs.gene_symbol_to_affy(gene_ids)
@@ -72,12 +73,12 @@ def uploaded_file():
             except Exception:
                 return jsonify({'errMsg': 'File not on correct format'}), 416
             train_genes_file = "Testing/gene_ids_GSE15907_series_matrix"
-            predicted, confidence = cs.KNN_sort_filtered(X_ref, train_labels, X_query_dist_matched, included_genes_file,
-                                                         train_genes_file, k=5, platform="affy")
+            predicted, confidence = cs.classification(X_ref, train_labels, X_query_dist_matched, included_genes_file,
+                                                         train_genes_file, algo, k=5, platform="affy")
 
         else:
             # Code to use dist matched KNN to classify
-            print("Running KNN classifier using Microarray data")
+            print("Running classifier using Microarray data or BULK")
             if request.form['convert'] == 'no':  # not labeled by gene symbol, so need to convert using second file
                 g = request.files['conversion_file']
                 g.save("data/" + g.filename)
@@ -92,6 +93,7 @@ def uploaded_file():
 
             train_data = pickle.load(open('Testing/X_unscaled_combo', "rb")).astype(np.float)
             train_labels = pickle.load(open('Testing/y_combo', "rb"))
+            train_labels = [element.lower().rstrip() for element in train_labels] ; train_labels
             filename = 'X_unscaled_combo'
             included_affy_file = "Testing/indices_of_" + str(1421) + "_included_features_" + filename
             train_genes_file = "Testing/gene_ids_GSE15907_series_matrix"
@@ -105,14 +107,7 @@ def uploaded_file():
             X_query_dist_matched = cs.match_dist(X_ref,X_query)
             if X_query_dist_matched == 'File not on correct format':
                 return jsonify({'errMsg': 'Mapping file is not on correct format'}), 416
-            #predicted,confidence = cs.KNN_sort_filtered(X_ref,train_labels,X_query_dist_matched,included_affy_file,train_genes_file,k=5,platform="affy")
-            ######SHOULD WE USE SVM?!?!
-            #predicted,confidence = cs.ravidSVM(X_ref,train_labels,X_query_dist_matched,included_affy_file,train_genes_file,k=5,platform="affy")
-            predicted, confidence = cs.dorRandomForst(X_ref, train_labels, X_query_dist_matched, included_affy_file, train_genes_file, k=5, platform="affy")
-            # predicted1,confidence1, ct = cs.fit_model(X_ref,train_labels,save_file=f.filename)
-            # x_test=X_query_dist_matched.transpose()
-            # predddd = confidence1.predict_classes(x_test);
-            # print(predddd)
+            predicted,confidence = cs.classification(X_ref, train_labels, X_query_dist_matched, included_affy_file, train_genes_file, algo, k=5, platform="affy")
 
         output_dic = {}
         confidence_dic = {}

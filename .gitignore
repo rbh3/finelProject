@@ -1,5 +1,6 @@
 /venv
 /.idea
+/tal_files/*
 /data
 /Testing
-/talsFiles
+/tal_files
