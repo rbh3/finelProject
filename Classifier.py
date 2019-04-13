@@ -109,11 +109,13 @@ def gene_code_map(filename, data_row, data_end, symbol_col, id_col):
             print("reading line: ",count)
 
         line_split = line.split(sep="\t")
-        if line_split[id_col].lower() not in id_to_symbol_map:
-            id_to_symbol_map[str(line_split[id_col]).lower()] = str(line_split[symbol_col]).lower().replace('\n', '')
-        if line_split[symbol_col].lower() not in symbol_to_id_map:
-            symbol_to_id_map[line_split[symbol_col].lower().replace('\n', '')] = line_split[id_col].lower()
-
+        try:
+             if line_split[id_col].lower() not in id_to_symbol_map:
+                id_to_symbol_map[str(line_split[id_col]).lower()] = str(line_split[symbol_col]).lower().replace('\n', '')
+             if line_split[symbol_col].lower() not in symbol_to_id_map:
+                symbol_to_id_map[line_split[symbol_col].lower().replace('\n', '')] = line_split[id_col].lower()
+        except:
+            raise SyntaxError()
         line = f.readline()
     
     return id_to_symbol_map

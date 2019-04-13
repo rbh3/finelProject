@@ -47,8 +47,12 @@ def uploaded_file():
                 conv_end = int(request.form['conv_end_row'])
                 id_col = int(request.form['id_col'])
                 symbol_col = int(request.form['symbol_col'])
-                id_to_sym = cs.gene_code_map("data/" + g.filename, conv_start, conv_end, symbol_col, id_col)
-
+                try:
+                    id_to_sym = cs.gene_code_map("data/" + g.filename, conv_start, conv_end, symbol_col, id_col)
+                    if not id_to_sym:
+                         return jsonify({'errMsg': 'Mapping file not in the correct format , check that the file isn\'t empty'}), 416
+                except SyntaxError as exception:
+                    return jsonify({'errMsg': 'Mapping file not in the correct format'}), 416
             else:
                 id_to_sym = {}
                 for gene in gene_ids:
@@ -68,10 +72,10 @@ def uploaded_file():
                 return jsonify({'errMsg': 'The input file does not contains cells'}), 416
             except EOFError as exception:
                 return jsonify({'errMsg': 'File not on correct format'}), 416
-            try:
-                X_query_dist_matched = cs.match_dist(X_ref, X_query)
-            except Exception:
-                return jsonify({'errMsg': 'File not on correct format'}), 416
+            # try:
+            X_query_dist_matched = cs.match_dist(X_ref, X_query)
+            if X_query_dist_matched == 'File not on correct format':
+                return jsonify({'errMsg': 'Mapping file is not on correct format'}), 416
             train_genes_file = "Testing/gene_ids_GSE15907_series_matrix"
             predicted, confidence = cs.classification(X_ref, train_labels, X_query_dist_matched, included_genes_file,
                                                          train_genes_file, algo, k=5, platform="affy")
@@ -86,7 +90,13 @@ def uploaded_file():
                 conv_end = int(request.form['conv_end_row'])
                 id_col = int(request.form['id_col'])
                 symbol_col = int(request.form['symbol_col'])
-                id_symbol_map = cs.gene_code_map("data/" + g.filename, conv_start, conv_end, symbol_col, id_col)
+                try:
+                    id_symbol_map = cs.gene_code_map("data/" + g.filename, conv_start, conv_end, symbol_col, id_col)
+                    if not id_symbol_map:
+                        return jsonify({'errMsg': 'Mapping file not in the correct format , check that the file isn\'t empty'}), 416
+                except SyntaxError as exception:
+                    return jsonify({'errMsg': 'Mapping file not in the correct format'}), 416
+
                 id_to_affy = cs.gene_to_Affy_map(id_symbol_map, gene_ids, X)
             else:
                 id_to_affy = cs.gene_symbol_to_affy(gene_ids)
