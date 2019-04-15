@@ -1,6 +1,9 @@
 import unittest
 import Classifier as cs
 import Magic as mgc
+import pickle
+
+import numpy as np
 
 
 class TestSum(unittest.TestCase):
@@ -44,6 +47,39 @@ class TestSum(unittest.TestCase):
         test_data, gene_ids = mgc.magic_process("unitFiles/GSE60781_single_cell_dataset.txt", 3)
         self.assertIsNotNone(test_data, "should return results after magic process")
         self.assertIsNotNone(gene_ids, "should return results after magic process")
+
+
+    def test_reduce_good_rows_error_no_cells(self):
+        X, gene_ids, labels, titles = cs.get_series_data("unitFiles/nocol.txt", 3, 0, 'true', 'true')
+        id_to_affy = cs.gene_symbol_to_affy(gene_ids)
+        train_data = pickle.load(open('Testing/X_unscaled_combo', "rb")).astype(np.float)
+        train_labels = pickle.load(open('Testing/y_combo', "rb"))
+        train_labels = [element.lower().rstrip() for element in train_labels] ; train_labels
+        filename = 'X_unscaled_combo'
+        included_affy_file = "Testing/indices_of_" + str(1421) + "_included_features_" + filename
+        train_genes_file = "Testing/gene_ids_GSE15907_series_matrix"
+
+        Affy_genes = pickle.load(open("Testing/gene_ids_GSE15907_series_matrix", "rb"))
+        with self.assertRaises(Exception):
+            X_ref, X_query = cs.reduce_to_good_rows(train_data, X, included_affy_file, Affy_genes, id_to_affy,
+                                                        gene_ids)
+
+    def test_reduce_good_rows_success_to_match_in_gold_standard(self):
+        X, gene_ids, labels, titles = cs.get_series_data("unitFiles/small_bulk_human_dataset.txt", 3, 0, 'true', 'true')
+        id_to_affy = cs.gene_symbol_to_affy(gene_ids)
+        train_data = pickle.load(open('Testing/X_unscaled_combo', "rb")).astype(np.float)
+        train_labels = pickle.load(open('Testing/y_combo', "rb"))
+        train_labels = [element.lower().rstrip() for element in train_labels] ; train_labels
+        filename = 'X_unscaled_combo'
+        included_affy_file = "Testing/indices_of_" + str(1421) + "_included_features_" + filename
+        train_genes_file = "Testing/gene_ids_GSE15907_series_matrix"
+
+        Affy_genes = pickle.load(open("Testing/gene_ids_GSE15907_series_matrix", "rb"))
+        X_ref, X_query = cs.reduce_to_good_rows(train_data, X, included_affy_file, Affy_genes, id_to_affy,
+                                                        gene_ids)
+        self.assertEqual(X_ref.shape[0],
+                         4,
+                         "Should convert only 4 genes")
 
 
 
