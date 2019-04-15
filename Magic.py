@@ -1,18 +1,11 @@
 import magic
 
 import numpy as np
-import pandas as pd
 
 # Plotting and miscellaneous imports
-import os
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 
-import csv
 
 def txt_to_csv(filename,start_row):
-    
     txt = open(filename,'r')
     csv = open(filename[:-4]+'.csv','w',encoding='utf-8')
     count = 0
@@ -52,5 +45,3 @@ def magic_process(filename,start_row):
         low_genes.append(gene.lower())
 
     return X_magic.values.T, low_genes
-    
-    

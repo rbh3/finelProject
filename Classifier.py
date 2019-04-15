@@ -235,8 +235,6 @@ def reduce_to_good_rows(train_data,test_data,included_affy_file,train_genes,gene
     return X_affy_good_rows, input_X_good_rows
 
 # Hack notes: predict_proba works - it gives a vector of all the confidences according to each
-#
-
 
 def ravidSVM(X_train, y_train, X_test, k, type_map):
     print('Calculating using SVM')

@@ -1,5 +1,6 @@
 import unittest
 import Classifier as cs
+import Magic as mgc
 
 
 class TestSum(unittest.TestCase):
@@ -17,17 +18,33 @@ class TestSum(unittest.TestCase):
                          'Empty',
                          "Should return Empty on an empty file")
 
-    def test_gene_code_map_Corrrectly(self):
+    def test_gene_code_map_Correctly(self):
         id_to_sym=cs.gene_code_map("unitFiles/smallMapFile.txt", 2, 0, 1, 2)
         self.assertEqual(id_to_sym,
                          {'ddr1': '1007_s_at', 'rfc2': '1053_at', 'hspa6': '117_at', 'pax8': '121_at', 'guca1a': '1255_g_at', 'mir5193': '1294_at', 'thra': '1316_at'},
                          "Should return 7 genes symbols")
 
     def test_gene_code_map_ERROR(self):
-        self.assertEqual(cs.gene_code_map("unitFiles/empty.txt", 3, 0, 1, 2), {},
-                             "Should return empty dictionery on an empty file")
         with self.assertRaises(SyntaxError): #should raise error on files with no colums- not the right format
             cs.gene_code_map("unitFiles/nocol.txt", 3, 0, 1, 2)
+
+    def test_gene_code_map_empty(self):
+        self.assertEqual(cs.gene_code_map("unitFiles/empty.txt", 3, 0, 1, 2), {},
+                    "Should return empty dictionary on an empty file")
+
+    def test_magic_process_fail_on_file_with_no_cols(self):
+        with self.assertRaises(SyntaxError): #should raise error on files with no colums- not the right format
+            mgc.magic_process("unitFiles/nocol.txt", 3)
+
+    def test_magic_process_fail_on_microarray_cell_type(self):
+        with self.assertRaises(EOFError):
+            x,y= mgc.magic_process("unitFiles/smallTestFile.txt", 3)
+
+    def test_magic_process_success_on_single_cell_type(self):
+        test_data, gene_ids = mgc.magic_process("unitFiles/GSE60781_single_cell_dataset.txt", 3)
+        self.assertIsNotNone(test_data, "should return results after magic process")
+        self.assertIsNotNone(gene_ids, "should return results after magic process")
+
 
 
 if __name__ == '__main__':
