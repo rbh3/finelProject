@@ -41,7 +41,11 @@ def magic_process(filename,start_row):
 
     genes = list(X_magic.T.index)
     low_genes = []
-    for gene in genes:
-        low_genes.append(gene.lower())
+    try:
+        for gene in genes:
+             low_genes.append(gene.lower())
+    except:
+        raise IndexError('A problem in translating your genes, maybe you need conversion file')
+
 
     return X_magic.values.T, low_genes

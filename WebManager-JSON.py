@@ -72,6 +72,8 @@ def uploaded_file():
                 return jsonify({'errMsg': 'The input file does not contains cells'}), 416
             except EOFError as exception:
                 return jsonify({'errMsg': 'File not on correct format'}), 416
+            except IndexError as exception:
+                return jsonify({'There is a problem in translating your genes, maybe you need conversion file'}), 416
             # try:
             X_query_dist_matched = cs.match_dist(X_ref, X_query)
             if X_query_dist_matched == 'File not on correct format':
