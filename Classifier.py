@@ -81,14 +81,13 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
         line_split = line.split("\t")
         gene_ids.append(line_split[0].strip('"').lower()) #first element in the row is the gene id
         line_flt = [] #we generate a line of floats - the data across a single row
-        print(line_split)
-        for i in range(len(line_split)):  
+        for i in range(len(line_split)):
             try:
                 line_flt.append((math.log(float(line_split[i])+1)/math.log(2))) #/scale)
             except:
+                print ('EXCE', line_split[i])
                 bad_columns.append(i)
                 line_flt.append(line_split[i].strip('"'))
-        print(line_flt)
         X.append(line_flt)
 
         line = f.readline()
