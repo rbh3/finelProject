@@ -32,7 +32,7 @@ def uploaded_file():
         f.save("data/" + f.filename)
 
         try:
-            X, gene_ids, labels, titles, haveExtraTypes = cs.get_series_data("data/" + f.filename, start_row, end_row, isLabeled, isTitled)
+            X, gene_ids, labels, titles = cs.get_series_data("data/" + f.filename, start_row, end_row, isLabeled, isTitled)
         except Exception:
             return jsonify({'errMsg': 'The input file is empty'}), 416
 
@@ -128,12 +128,30 @@ def uploaded_file():
             confidence_dic[i] = confidence[i]
 
         precision = 0
+        typesMap = {
+            'b': 1,
+            'b1ab': 2,
+            'dc': 3,
+            'gn': 4,
+            'mf': 5,
+            'nk': 6,
+            'nkt': 7,
+            't4': 8,
+            't8': 9,
+            'tgd': 10,
+            'treg': 11,
+            'other': 12,
+            'label': 13
+        }
+        haveExtraTypes = False
         if len(labels) > 0:
             del labels[0]
             print('real labels: ', labels)
             for i in range(len(labels)):
                 if labels[i] == output_dic[i]:
                     precision += 1
+                if labels[i] not in typesMap:
+                    haveExtraTypes = True
             precision = precision / len(labels)
             print('labels got: ', output_dic)
             print('Precision: ', precision * 100, '%')

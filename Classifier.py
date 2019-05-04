@@ -49,16 +49,13 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
     f = open(filename, 'r')
     labels = []
     titles = []
-    haveExtraTypes = False
+
     #read down until data_line
     for _ in range(data_line):
         line = f.readline()
         if isLabeld == 'true' and _ == 0:
             labels = line.split('\t')
             labels = [element.lower().rstrip() for element in labels] ; labels
-            for element in labels and not haveExtraTypes:
-                if element.lower().rstrip() not in typesMap and not haveExtraTypes:
-                    haveExtraTypes = True
         if isTitled == 'true' and _ == 1:
             titles = line.split('\t')
             titles = [element.lower().rstrip() for element in titles] ; titles
@@ -103,7 +100,7 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
 
     f.close()
 
-    return X, gene_ids, labels, titles, haveExtraTypes
+    return X, gene_ids, labels, titles
 
 
 
