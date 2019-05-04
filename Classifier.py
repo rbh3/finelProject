@@ -56,11 +56,10 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
         if isLabeld == 'true' and _ == 0:
             labels = line.split('\t')
             labels = [element.lower().rstrip() for element in labels] ; labels
-            for element in labels:
-                if element.lower().rstrip() not in typesMap and not haveExtraTypes:
-                    haveExtraTypes = True
+            # for element in labels:
+            #     if element.lower().rstrip() not in typesMap and not haveExtraTypes:
+            #         haveExtraTypes = True
                     # break
-
         if isTitled == 'true' and _ == 1:
             titles = line.split('\t')
             titles = [element.lower().rstrip() for element in titles] ; titles
@@ -85,7 +84,6 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
             try:
                 line_flt.append((math.log(float(line_split[i])+1)/math.log(2))) #/scale)
             except:
-                print ('EXCE', line_split[i])
                 bad_columns.append(i)
                 line_flt.append(line_split[i].strip('"'))
         X.append(line_flt)
