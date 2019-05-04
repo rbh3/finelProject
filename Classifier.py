@@ -27,21 +27,6 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
     Then it reads until data_line and creates an array of expression data (specifically log2(expression+1))
     Offset is only used for weird GSE files where the labels present parsing difficulties
     """
-    typesMap = {
-        'b': 1,
-        'b1ab': 2,
-        'dc': 3,
-        'gn': 4,
-        'mf': 5,
-        'nk': 6,
-        'nkt': 7,
-        't4': 8,
-        't8': 9,
-        'tgd': 10,
-        'treg': 11,
-        'other': 12,
-        'label': 13
-    }
     data_line = int(data_line)
     data_end = int(data_end)
     bad_columns = [0] #columns that we throw out due to missing label/data
@@ -61,7 +46,7 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
             titles = [element.lower().rstrip() for element in titles] ; titles
             print(titles)
 
-    if(len(titles)>0):
+    if len(titles) > 0:
         del titles[0]
     #Set up X - the array of data
     X = []
