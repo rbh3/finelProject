@@ -32,7 +32,7 @@ def uploaded_file():
         f.save("data/" + f.filename)
 
         try:
-            X, gene_ids, labels, titles = cs.get_series_data("data/" + f.filename, start_row, end_row, isLabeled, isTitled)
+            X, gene_ids, labels, titles, haveExtraTypes = cs.get_series_data("data/" + f.filename, start_row, end_row, isLabeled, isTitled)
         except Exception:
             return jsonify({'errMsg': 'The input file is empty'}), 416
 
@@ -137,10 +137,11 @@ def uploaded_file():
             precision = precision / len(labels)
             print('labels got: ', output_dic)
             print('Precision: ', precision * 100, '%')
+        print('Have Extra Types ? ', haveExtraTypes)
 
         return jsonify(
             {'output': output_dic, 'confidence': confidence_dic, 'CellsNo': len(output_dic), 'actual': labels,
-             'Titles': titles, 'Precision': precision})
+             'Titles': titles, 'Precision': precision, 'haveExtraTypes': haveExtraTypes})
 
 
 if __name__ == '__main__':

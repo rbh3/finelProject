@@ -27,6 +27,21 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
     Then it reads until data_line and creates an array of expression data (specifically log2(expression+1))
     Offset is only used for weird GSE files where the labels present parsing difficulties
     """
+    typesMap = {
+        'b': 1,
+        'b1ab': 2,
+        'dc': 3,
+        'gn': 4,
+        'mf': 5,
+        'nk': 6,
+        'nkt': 7,
+        't4': 8,
+        't8': 9,
+        'tgd': 10,
+        'treg': 11,
+        'other': 12,
+        'label': 13
+    }
     data_line = int(data_line)
     data_end = int(data_end)
     bad_columns = [0] #columns that we throw out due to missing label/data
@@ -34,13 +49,18 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
     f = open(filename, 'r')
     labels = []
     titles = []
+    haveExtraTypes = False
     #read down until data_line
     for _ in range(data_line):
         line = f.readline()
         if isLabeld == 'true' and _ == 0:
             labels = line.split('\t')
             labels = [element.lower().rstrip() for element in labels] ; labels
-            print(labels)
+            for element in labels:
+                if element not in typesMap and not haveExtraTypes:
+                    haveExtraTypes = True
+                    break
+
         if isTitled == 'true' and _ == 1:
             titles = line.split('\t')
             titles = [element.lower().rstrip() for element in titles] ; titles
@@ -86,7 +106,7 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
 
     f.close()
 
-    return X, gene_ids, labels, titles
+    return X, gene_ids, labels, titles, haveExtraTypes
 
 
 
