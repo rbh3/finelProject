@@ -56,10 +56,9 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
         if isLabeld == 'true' and _ == 0:
             labels = line.split('\t')
             labels = [element.lower().rstrip() for element in labels] ; labels
-            # for element in labels:
-            #     if element.lower().rstrip() not in typesMap and not haveExtraTypes:
-            #         haveExtraTypes = True
-                    # break
+            for element in labels and not haveExtraTypes:
+                if element.lower().rstrip() not in typesMap and not haveExtraTypes:
+                    haveExtraTypes = True
         if isTitled == 'true' and _ == 1:
             titles = line.split('\t')
             titles = [element.lower().rstrip() for element in titles] ; titles
