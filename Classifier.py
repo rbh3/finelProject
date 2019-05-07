@@ -31,7 +31,7 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
     data_end = int(data_end)
     bad_columns = [0] #columns that we throw out due to missing label/data
 
-    f = open(filename, 'r')
+    f = open(filename, 'r', encoding="utf-8")
     labels = []
     titles = []
 
