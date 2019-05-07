@@ -68,7 +68,6 @@ def get_series_data(filename,data_line,data_end, isLabeld, isTitled, offset=1):
                 bad_columns.append(i)
                 line_flt.append(line_split[i].strip('"'))
         X.append(line_flt)
-        print(line)
         line = f.readline()
     
     #Turn into an np.array 
