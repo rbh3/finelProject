@@ -2,9 +2,6 @@ import magic
 
 import numpy as np
 
-# Plotting and miscellaneous imports
-
-
 def txt_to_csv(filename,start_row):
     txt = open(filename,'r')
     csv = open(filename[:-4]+'.csv','w',encoding='utf-8')
@@ -26,12 +23,6 @@ def magic_process(filename,start_row):
     if len(X) == 0:
         raise SyntaxError('File not on correct format')
 
-    #libsize = X.sum(axis=1)
-    #X = X.loc[libsize>1000]
-    #print("After loc: ",X.shape)
-    
-    #X  = magic.preprocessing.library_size_normalize(X)
-    #X = np.sqrt(X)
     try:
         X = np.log2(X+1)
         magic_op = magic.MAGIC(k=2,t=3, a=20, verbose=0)
